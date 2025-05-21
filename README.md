@@ -13,3 +13,5 @@ https://github.com/user-attachments/assets/955500ca-cb21-45a4-a168-e6040ab351fe
 
 
 DeepSort + Yolo8n.pt Algorithm 
+
+https://github.com/user-attachments/assets/487f8c7f-15a5-4d79-a289-eae1b14394d0
