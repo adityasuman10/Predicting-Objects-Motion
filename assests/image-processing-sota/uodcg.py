@@ -13,7 +13,7 @@ import numpy as np
 """
 load the image in grey scale
 """
-image_path = 'cython/assests/Screenshot 2025-05-29 101009.png'
+image_path = 'vex/tree.png'
 img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 """
 apply gaussian blue to reduce noise in the imaage
@@ -55,3 +55,4 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 print("test passed", end =" ")
+
