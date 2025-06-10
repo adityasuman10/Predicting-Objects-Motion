@@ -1,56 +1,39 @@
-"""
- Universal Object Detection via Contour in Grayscale 
- uodcg
-
- implementation 6/6/25
-"""
 import cv2
 import numpy as np
 import os
 
-"""
-load the image in grey scale
-"""
+# Load the image in grayscale
 image_path = 'cython/assests/Screenshot 2025-06-10 075942.png'
 img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 
-# Check if the image was loaded successfully
 if img is None:
     print(f"[ERROR] Could not load image at path: {image_path}")
-    print("Current working directory:", os.getcwd())
     exit()
 
-"""
-apply gaussian blue to reduce noise in the imaage
-"""
-# Apply Gaussian blur to reduce noise
-blurred = cv2.GaussianBlur(img, (5, 5), 0)
+# Threshold to detect white or very bright pixels
+_, binary = cv2.threshold(img, 180, 255, cv2.THRESH_BINARY)  # Slightly lower threshold
 
-"""
-# Apply Otsu's thresholding to binarize image
-"""
-_, binary = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+# Dilate to connect white regions better
+kernel = np.ones((5, 5), np.uint8)  # Larger kernel
+dilated = cv2.dilate(binary, kernel, iterations=2)
 
-"""
-Optional: Apply morphological closing to connect nearby pixels
-"""
-kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+# Find contours
+contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-# Find contours of all distinct regions
-contours, _ = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-# Convert image to color for drawing colored boxes
+# Convert grayscale to BGR for visualization
 output = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
-# Draw bounding boxes around all objects
-for cnt in contours:
-    x, y, w, h = cv2.boundingRect(cnt)
-    if w > 5 and h > 5:  # filter out small noise
-        cv2.rectangle(output, (x, y), (x + w, y + h), (255, 255, 255), 2)  # white box
+if contours:
+    # Combine all contours into one bounding rectangle
+    all_points = np.vstack(contours)
+    x, y, w, h = cv2.boundingRect(all_points)
 
-# Show final output
-cv2.imshow("Detected Objects", output)
+    # Draw bounding box around all white areas
+    cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
+else:
+    print("[INFO] No object detected.")
+
+cv2.imshow("Universal Object Detection", output)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
